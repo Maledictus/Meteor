@@ -8,6 +8,7 @@ Rectangle
 	property url icon: weatherIcon
 	property string location: weatherLocation
 	property string weather: weatherInfo
+	property bool scaleImage: weatherScaleImage
 
 	height: 92
 	width: sideMargin + weatherImage.width +
@@ -44,7 +45,8 @@ Rectangle
 
 		fillMode: Image.PreserveAspectFit
 
-		source: icon
+		smooth: true
+		source: scaleImage ? (icon + '/' + width) : icon
 	}
 
 	Text

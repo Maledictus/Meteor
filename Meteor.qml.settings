@@ -10,6 +10,12 @@
 			</item>
 		</groupbox>
 		<groupbox>
+			<label value="Appearance" />
+			<item type="checkbox" property="UseSystemIconSet" default="false" >
+				<label value="Use system iconset:" />
+			</item>
+		</groupbox>
+		<groupbox>
 			<label value="Units" />
 			<item type="combobox" property="TemperatureUnit" >
 				<label value="Temperature:" />

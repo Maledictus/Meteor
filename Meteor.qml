@@ -16,10 +16,73 @@ Item
 	property string toolTipWeather;
 	property string toolTipCity;
 
-	Component.onCompleted:
+	property bool useSystemIconSet: UseSystemIconSet
+
+	property string iconID;
+
+	function getImage ()
 	{
-		var hours = new Date().getHours();
-		timePrefix = (hours < 7 || hours >= 19) ? "night" : "day";
+		var image;
+		switch (iconID)
+		{
+		case "01d":
+			image = "weather-clear";
+			break;
+		case "01n":
+			image = "weather-clear-night";
+			break;
+		case "02d":
+			image = "weather-few-clouds";
+			break;
+		case "02n":
+			image = "weather-few-clouds-night";
+			break;
+		case "03d":
+			image = "weather-clouds";
+			break;
+		case "03n":
+			image = "weather-clouds-night";
+			break;
+		case "04d":
+			image = "weather-many-clouds";
+			break;
+		case "04n":
+			image = useSystemIconSet ? "weather-many-clouds" : "weather-many-clouds-night";
+			break;
+		case "09d":
+		case "09n":
+			image = "weather-showers";
+			break;
+		case "10d":
+			image = "weather-showers-day";
+			break;
+		case "10n":
+			image = "weather-showers-night";
+			break;
+		case "11d":
+		case "11n":
+			image = "weather-storm";
+			break;
+		case "13d":
+			image = "weather-snow-scattered-day";
+			break;
+		case "13n":
+			image = "weather-snow-scattered-night";
+			break;
+		case "50d":
+		case "50n":
+			image = "weather-mist";
+			break;
+		default:
+			image = "weather-none-available";
+		}
+
+		if (useSystemIconSet)
+			image = "image://ThemeIcons/" + image;
+		else
+			image = Qt.resolvedUrl ("images/" + image + ".png");
+
+		return image;
 	}
 
 	function updateWeatherQuark (info)
@@ -43,7 +106,7 @@ Item
 		var humidity = info ["main"] ["humidity"];
 		var pressure = info ["main"] ["pressure"];
 
-		weatherButton.actionIconURL = "http://openweathermap.org/img/w/" + info ["weather"][0]["icon"];
+		iconID = info ["weather"][0]["icon"];
 	}
 
 	function requestNewWeather ()
@@ -100,7 +163,8 @@ Item
 			existing: "toggle",
 			weatherIcon: weatherButton.actionIconURL,
 			weatherLocation: toolTipCity,
-			weatherInfo: toolTipWeather
+			weatherInfo: toolTipWeather,
+			weatherScaleImage: useSystemIconSet
 		};
 
 		quarkProxy.openWindow(sourceURL, "MeteorToolTip.qml", params);
@@ -124,11 +188,8 @@ Item
 		id: weatherButton
 
 		anchors.fill: parent
-
-		sourceSize.width: Math.min(parent.implicitWidth, parent.implicitHeight)
-		sourceSize.height: Math.min(parent.implicitWidth, parent.implicitHeight)
+		actionIconURL: getImage ()
 		actionIconScales: false
-		actionIconURL: Qt.resolvedUrl ("images/weather-none-available.svg")
 
 		onHovered:
 		{
@@ -142,7 +203,13 @@ Item
 			toolTipHideTimer.interval = 500;
 			toolTipHideTimer.restart ();
 		}
+
+		onTriggered: requestNewWeather ();
+		onActionIconURLChanged: actionIconScales = useSystemIconSet;
 	}
+
+	onUseSystemIconSetChanged: requestNewWeather ();
+
 }
 
 //{
