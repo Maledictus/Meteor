@@ -1,5 +1,6 @@
 import QtQuick 1.1
 import org.LC.common 1.0
+import "Utils.js" as Utils
 
 Item
 {
@@ -12,100 +13,16 @@ Item
 	property string themePrefix: "colorful";
 
 	property bool showToolTip: false;
-
-	property string toolTipWeather;
-	property string toolTipCity;
+	property bool showForecastWindow: false;
 
 	property bool useSystemIconSet: UseSystemIconSet
 
 	property string iconID;
 
-	function getImage ()
-	{
-		var image;
-		switch (iconID)
-		{
-		case "01d":
-			image = "weather-clear";
-			break;
-		case "01n":
-			image = "weather-clear-night";
-			break;
-		case "02d":
-			image = "weather-few-clouds";
-			break;
-		case "02n":
-			image = "weather-few-clouds-night";
-			break;
-		case "03d":
-			image = "weather-clouds";
-			break;
-		case "03n":
-			image = "weather-clouds-night";
-			break;
-		case "04d":
-			image = "weather-many-clouds";
-			break;
-		case "04n":
-			image = useSystemIconSet ? "weather-many-clouds" : "weather-many-clouds-night";
-			break;
-		case "09d":
-		case "09n":
-			image = "weather-showers";
-			break;
-		case "10d":
-			image = "weather-showers-day";
-			break;
-		case "10n":
-			image = "weather-showers-night";
-			break;
-		case "11d":
-		case "11n":
-			image = "weather-storm";
-			break;
-		case "13d":
-			image = "weather-snow-scattered-day";
-			break;
-		case "13n":
-			image = "weather-snow-scattered-night";
-			break;
-		case "50d":
-		case "50n":
-			image = "weather-mist";
-			break;
-		default:
-			image = "weather-none-available";
-		}
-
-		if (useSystemIconSet)
-			image = "image://ThemeIcons/" + image;
-		else
-			image = Qt.resolvedUrl ("images/" + image + ".png");
-
-		return image;
-	}
+	property variant weatherData;
 
 	function updateWeatherQuark (info)
 	{
-		var temp = parseFloat (info ["main"] ["temp"]);
-		if (TemperatureUnit == "Celsius")
-		{
-			temp = Math.round (temp - 273.15);
-			temp = String (temp) + "\u00B0"+ "C";
-		}
-		else if (TemperatureUnit == "Fahrenheit")
-		{
-			temp -= 458.87;
-			temp = String (temp) + "\u00B0"+ "F";
-		}
-		else if (TemperatureUnit == "Kelvin")
-			temp = String (temp) + "K";
-
-		toolTipCity = info ["name"] + ", " + info ["sys"]["country"];
-		toolTipWeather = info ["weather"][0]["description"] + ", " + temp;
-		var humidity = info ["main"] ["humidity"];
-		var pressure = info ["main"] ["pressure"];
-
 		iconID = info ["weather"][0]["icon"];
 	}
 
@@ -116,7 +33,10 @@ Item
 		{
 			if (request.readyState == XMLHttpRequest.DONE)
 				if (request.status == 200)
-					updateWeatherQuark (JSON.parse (request.responseText));
+				{
+					rootRect.weatherData = JSON.parse (request.responseText);
+					updateWeatherQuark (rootRect.weatherData);
+				}
 				else
 					console.log ("HTTP request failed", request.status);
 		}
@@ -162,8 +82,10 @@ Item
 			y: global.y,
 			existing: "toggle",
 			weatherIcon: weatherButton.actionIconURL,
-			weatherLocation: toolTipCity,
-			weatherInfo: toolTipWeather,
+			weatherLocation: rootRect.weatherData ["name"] + ", " +
+					rootRect.weatherData ["sys"]["country"],
+			weatherInfo: rootRect.weatherData ["weather"][0]["description"] +
+					", " + Utils.getTemperatureString (weatherData, TemperatureUnit),
 			weatherScaleImage: useSystemIconSet
 		};
 
@@ -178,6 +100,8 @@ Item
 	{
 		if (!showToolTip)
 			return;
+		if (showForecastWindow)
+			return;
 		var params = { existing: "toggle" };
 		quarkProxy.openWindow(sourceURL, "MeteorToolTip.qml", params);
 		showToolTip = false;
@@ -188,27 +112,54 @@ Item
 		id: weatherButton
 
 		anchors.fill: parent
-		actionIconURL: getImage ()
+		actionIconURL: Utils.getImage (iconID, useSystemIconSet)
 		actionIconScales: false
 
 		onHovered:
 		{
 			if (toolTipShowTimer.running)
 				return;
+			if (showForecastWindow)
+				return;
 			toolTipShowTimer.start ();
+
 		}
 		onHoverLeft:
 		{
 			toolTipShowTimer.stop ();
+			if (showForecastWindow)
+				return;
 			toolTipHideTimer.interval = 500;
 			toolTipHideTimer.restart ();
 		}
 
-		onTriggered: requestNewWeather ();
+		onTriggered:
+		{
+			var global = commonJS.getTooltipPos (rootRect);
+			var params = {
+				x: global.x,
+				y: global.y,
+				existing: "toggle",
+				weatherIcon: weatherButton.actionIconURL,
+				weatherScaleImage: useSystemIconSet,
+				weatherInfo: rootRect.weatherData,
+				tempUnit: TemperatureUnit
+			};
+			showForecastWindow = !showForecastWindow;
+			quarkProxy.openWindow(sourceURL, "MeteorForecastWindow.qml", params);
+		}
+
 		onActionIconURLChanged: actionIconScales = useSystemIconSet;
 	}
 
 	onUseSystemIconSetChanged: requestNewWeather ();
+
+	onShowForecastWindowChanged:
+	{
+		if (showToolTip)
+			hideWeatherToolTip ();
+		toolTipShowTimer.stop ()
+	}
 
 }
 
