@@ -136,6 +136,109 @@ Flipable
 				color: colorProxy.color_TextBox_BottomColor
 			}
 		}
+
+		function parseLocationOutput (output)
+		{
+
+		}
+
+		function searchLocation (location)
+		{
+			var request = new XMLHttpRequest ();
+			request.onreadystatechange = function ()
+			{
+				if (request.readyState == XMLHttpRequest.DONE)
+					if (request.status == 200)
+						parseLocationOutput (JSON.parse (request.responseText));
+					else
+						console.log ("HTTP request failed", request.status);
+			}
+			request.open ("GET", "http://api.openweathermap.org/data/2.5/find?q=" + location);
+			request.send ();
+		}
+
+		Rectangle
+		{
+			id: locationInputContainer
+
+			anchors.left: parent.left
+			anchors.leftMargin: flipable.sideMargin
+			anchors.top: parent.top
+			anchors.topMargin: flipable.sideMargin
+			anchors.right: searchButton.left
+			anchors.rightMargin: flipable.sideMargin
+
+			border.width: 1
+			height: 22
+			radius: 3
+
+			color: colorProxy.color_Panel_TopColor
+
+			TextInput
+			{
+				id: locationInput
+				anchors.left: parent.left
+				anchors.right: parent.right
+				anchors.verticalCenter: parent.verticalCenter
+				anchors.margins: 2
+				font.pointSize: 10
+				color: colorProxy.color_Panel_TextColor
+				focus: true
+
+				selectByMouse: true
+
+				Keys.onReturnPressed: backRect.searchLocation(text);
+			}
+		}
+
+		ActionButton
+		{
+			id: searchButton
+			anchors.top: parent.top
+			anchors.topMargin: flipable.sideMargin
+			anchors.right: parent.right
+			anchors.rightMargin: flipable.sideMargin
+
+			width: 24
+			height: width
+			actionIconURL: "image://ThemeIcons/edit-find"
+			textTooltip: qsTr ("Search location")
+
+			onTriggered: backRect.searchLocation(locationInput.text)
+		}
+
+//		ActionButton
+//		{
+//			id: saveButton
+//			anchors.bottom: parent.bottom
+//			anchors.bottomMargin: flipable.sideMargin
+//			anchors.right: cancelButton.left
+//			anchors.rightMargin: flipable.sideMargin
+
+//			width: 24
+//			height: width
+//			actionIconURL: "image://ThemeIcons/dialog-ok-apply"
+//			textTooltip: qsTr ("Save")
+
+////			visible: false
+//		}
+
+		ActionButton
+		{
+			id: cancelButton
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: flipable.sideMargin
+			anchors.right: parent.right
+			anchors.rightMargin: flipable.sideMargin
+
+			width: 24
+			height: width
+			actionIconURL: "image://ThemeIcons/dialog-cancel"
+			textTooltip: qsTr ("Cancel")
+//			visible: false
+
+			onTriggered: flipped = !flipped
+		}
 	}
 
 	transform: Rotation
