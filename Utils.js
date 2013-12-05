@@ -51,10 +51,10 @@ function getImage (iconId, useSystemIconSet)
 		image = "weather-showers";
 		break;
 	case "10d":
-		image = "weather-showers-day";
+		image = "weather-showers-scattered-day";
 		break;
 	case "10n":
-		image = "weather-showers-night";
+		image = "weather-showers-scattered-night";
 		break;
 	case "11d":
 	case "11n":
