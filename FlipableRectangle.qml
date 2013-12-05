@@ -17,6 +17,8 @@ Flipable
 	property alias location: locationText.text
 	property alias weatherTemperature: weatherTempText.text
 
+	property bool locationSelected: false;
+
 	width: frontRect.width
 
 	front:Rectangle
@@ -139,11 +141,22 @@ Flipable
 
 		function parseLocationOutput (output)
 		{
-
+			variantsModel.clear ();
+			var count = output ["count"];
+			for (var i = 0; i < count; ++i)
+			{
+				var variant = output ["list"][i];
+				variantsModel.append ({ "location": variant ["name"] +
+						"," + variant ["sys"]["country"] });
+			}
+			locationInput.text = variantsModel.get (0).location;
+			variantsView.visible = true;
+			variantsView.forceActiveFocus ()
 		}
 
 		function searchLocation (location)
 		{
+			variantsView.visible = false;
 			var request = new XMLHttpRequest ();
 			request.onreadystatechange = function ()
 			{
@@ -153,7 +166,7 @@ Flipable
 					else
 						console.log ("HTTP request failed", request.status);
 			}
-			request.open ("GET", "http://api.openweathermap.org/data/2.5/find?q=" + location);
+			request.open ("GET", "http://api.openweathermap.org/data/2.5/find?type=like&q=" + location);
 			request.send ();
 		}
 
@@ -177,10 +190,10 @@ Flipable
 			TextInput
 			{
 				id: locationInput
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.verticalCenter: parent.verticalCenter
-				anchors.margins: 2
+				anchors.left: locationInputContainer.left
+				anchors.right: locationInputContainer.right
+				anchors.verticalCenter: locationInputContainer.verticalCenter
+				anchors.margins: 3
 				font.pointSize: 10
 				color: colorProxy.color_Panel_TextColor
 				focus: true
@@ -188,6 +201,10 @@ Flipable
 				selectByMouse: true
 
 				Keys.onReturnPressed: backRect.searchLocation(text);
+
+				onTextChanged:
+				if (text == "")
+					locationSelected = false;
 			}
 		}
 
@@ -207,21 +224,151 @@ Flipable
 			onTriggered: backRect.searchLocation(locationInput.text)
 		}
 
-//		ActionButton
-//		{
-//			id: saveButton
-//			anchors.bottom: parent.bottom
-//			anchors.bottomMargin: flipable.sideMargin
-//			anchors.right: cancelButton.left
-//			anchors.rightMargin: flipable.sideMargin
+		ListModel
+		{
+			id: variantsModel
+		}
 
-//			width: 24
-//			height: width
-//			actionIconURL: "image://ThemeIcons/dialog-ok-apply"
-//			textTooltip: qsTr ("Save")
+		Component
+		{
+			id: variantDelegate
 
-////			visible: false
-//		}
+			Rectangle
+			{
+				id: wrapper;
+				width: locationInputContainer.width;
+				height: 20
+				radius: 2
+				border.width: 1
+				border.color: colorProxy.color_ToolButton_BorderColor
+
+				gradient: Gradient
+				{
+					GradientStop
+					{
+						position: 0
+						color: colorProxy.color_ToolButton_TopColor
+					}
+					GradientStop
+					{
+						position: 1
+						color: colorProxy.color_ToolButton_BottomColor
+					}
+				}
+
+				function selectItem (index)
+				{
+					variantsView.currentIndex = index;
+					locationInput.text = variantsModel.get (index).location
+					variantsView.visible = false
+					locationSelected = true;
+				}
+
+				Text
+				{
+					anchors.left: parent.left
+					anchors.leftMargin: 3
+					anchors.right: parent.right
+					anchors.rightMargin: 3
+					anchors.verticalCenter: parent.verticalCenter
+
+					text: location;
+					color: colorProxy.color_ToolButton_TextColor
+				}
+
+				MouseArea
+				{
+					id: itemMouseArea
+					anchors.fill: parent;
+					hoverEnabled: true;
+
+					onEntered: variantsView.currentIndex = index;
+					onClicked: selectItem (index)
+				}
+
+				Keys.onReturnPressed: selectItem (index)
+			}
+		}
+
+		Component
+		{
+			id: highlight
+
+			Rectangle
+			{
+				gradient: Gradient
+				{
+					GradientStop
+					{
+						position: 0
+						color: colorProxy.color_ToolButton_HoveredTopColor
+					}
+					GradientStop
+					{
+						position: 1
+						color: colorProxy.color_ToolButton_HoveredBottomColor
+					}
+				}
+
+				width: variantsView.width - 1
+				height: variantsView.currentItem.height - 1
+				border.color: colorProxy.color_ToolButton_HoveredBorderColor
+				radius: 2
+				opacity: 0.5
+				y: variantsView.currentItem.y
+				z: 10
+			}
+		}
+
+		ListView
+		{
+			id: variantsView
+
+			anchors.left: locationInputContainer.left
+			anchors.right: locationInputContainer.right
+			anchors.top: locationInputContainer.bottom
+			height: (variantsModel.count + 2) * 20
+			clip:true
+			focus: true
+			boundsBehavior: Flickable.StopAtBounds;
+			visible: false
+
+			model: variantsModel
+			delegate: variantDelegate
+			highlight: highlight
+
+			Keys.onEscapePressed: visible = false
+
+			onVisibleChanged:
+				if (!visible)
+					locationInput.forceActiveFocus ()
+		}
+
+
+		ActionButton
+		{
+			id: saveButton
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: flipable.sideMargin
+			anchors.right: cancelButton.left
+			anchors.rightMargin: flipable.sideMargin
+
+			width: 24
+			height: width
+			actionIconURL: "image://ThemeIcons/dialog-ok-apply"
+			textTooltip: qsTr ("Save")
+
+			visible: locationSelected
+			onTriggered:
+			{
+				//TODO save location
+				flipped = !flipped
+				variantsModel.clear ()
+				variantsView.visible = false
+				locationInput.text = ""
+			}
+
+		}
 
 		ActionButton
 		{
@@ -235,9 +382,14 @@ Flipable
 			height: width
 			actionIconURL: "image://ThemeIcons/dialog-cancel"
 			textTooltip: qsTr ("Cancel")
-//			visible: false
 
-			onTriggered: flipped = !flipped
+			onTriggered:
+			{
+				flipped = !flipped
+				variantsModel.clear ()
+				variantsView.visible = false
+				locationInput.text = ""
+			}
 		}
 	}
 
@@ -264,3 +416,24 @@ Flipable
 		NumberAnimation { target: rotation; property: "angle"; duration: 500 }
 	}
 }
+
+//{
+//"message":"like",
+//"cod":"200",
+//"count":8,
+//"list":
+//[
+//	{
+//		"id":2643743,
+//		"name":"London",
+//		"coord":{"lon":-0.12574,"lat":51.50853},
+//		"main":{"temp":281.94,"pressure":1018,"humidity":76,"temp_min":281.15,"temp_max":282.59},
+//		"dt":1386246959,
+//		"wind":{"speed":10.8,"deg":250,"gust":15.9},
+//		"sys":{"country":"GB"},
+//		"rain":{"1h":13.84},
+//		"clouds":{"all":40},
+//		"weather":[{"id":502,"main":"Rain","description":"heavy intensity rain","icon":"10d"}]
+//	},
+//]	...
+//}
