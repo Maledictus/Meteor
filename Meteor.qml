@@ -162,18 +162,3 @@ Item
 	}
 
 }
-
-//{
-//"coord":{"lon":27.57,"lat":53.9},
-//"sys":{"message":0.0102,"country":"BY","sunrise":1385877938,"sunset":1385905940},
-//"weather":[{"id":803,"main":"Clouds","description":"broken clouds","icon":"04d"}],
-//"base":"gdps stations",
-//"main":{"temp":273.15,"humidity":86,"pressure":1009,"temp_min":274.82,"temp_max":275.15},
-//"wind":{"speed":6.68,"gust":10.28,"deg":230},
-//"snow":{"3h":0.125},
-//"clouds":{"all":68},
-//"dt":1385890221,
-//"id":625144,
-//"name":"Minsk",
-//"cod":200
-//}
