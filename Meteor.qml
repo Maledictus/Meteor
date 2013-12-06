@@ -14,20 +14,20 @@ Item
 
 	property bool showToolTip: false;
 	property bool showForecastWindow: false;
+	property variant forecastWindow;
 
 	property bool useSystemIconSet: UseSystemIconSet
+	property string location: typeof (Location) == "undefined" ? "undefined" : Location
 
 	property string iconID;
-
 	property variant weatherData;
-
-	function updateWeatherQuark (info)
-	{
-		iconID = info ["weather"][0]["icon"];
-	}
 
 	function requestNewWeather ()
 	{
+		if (typeof (rootRect.location) == "undefined" || rootRect.location == "" ||
+				rootRect.location == "undefined")
+			return;
+
 		var request = new XMLHttpRequest ();
 		request.onreadystatechange = function ()
 		{
@@ -35,13 +35,13 @@ Item
 				if (request.status == 200)
 				{
 					rootRect.weatherData = JSON.parse (request.responseText);
-					updateWeatherQuark (rootRect.weatherData);
+					rootRect.iconID = rootRect.weatherData ["weather"][0]["icon"];
 				}
 				else
 					console.log ("HTTP request failed", request.status);
 		}
-		//TODO change city
-		request.open ("GET", "http://api.openweathermap.org/data/2.5/weather?q=Minsk");
+
+		request.open ("GET", "http://api.openweathermap.org/data/2.5/weather?q=" + rootRect.location);
 		request.send ();
 	}
 
@@ -124,6 +124,7 @@ Item
 			toolTipShowTimer.start ();
 
 		}
+
 		onHoverLeft:
 		{
 			toolTipShowTimer.stop ();
@@ -143,12 +144,14 @@ Item
 				weatherIcon: weatherButton.actionIconURL,
 				weatherScaleImage: useSystemIconSet,
 				weatherInfo: rootRect.weatherData,
-				tempUnit: TemperatureUnit
+				tempUnit: TemperatureUnit,
+				settings: Meteor_Settings
 			};
 			showForecastWindow = !showForecastWindow;
-			quarkProxy.openWindow(sourceURL, "MeteorForecastWindow.qml", params);
-		}
+			rootRect.forecastWindow = quarkProxy.openWindow(sourceURL,
+					"MeteorForecastWindow.qml", params);
 
+		}
 		onActionIconURLChanged: actionIconScales = useSystemIconSet;
 	}
 
@@ -161,4 +164,14 @@ Item
 		toolTipShowTimer.stop ()
 	}
 
+	onLocationChanged: requestNewWeather ()
+
+	onWeatherDataChanged:
+	{
+		if (showForecastWindow)
+		{
+			forecastWindow.icon = weatherButton.actionIconURL
+			forecastWindow.weatherData = rootRect.weatherData
+		}
+	}
 }

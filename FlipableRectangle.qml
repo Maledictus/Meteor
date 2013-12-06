@@ -1,12 +1,11 @@
 import QtQuick 1.1
 import org.LC.common 1.0
+import "Utils.js" as Utils
+
 
 Flipable
 {
 	id: flipable
-
-	property string frontImage;
-	property string backImage;
 
 	property int sideMargin: 5
 
@@ -19,18 +18,17 @@ Flipable
 
 	property bool locationSelected: false;
 
-	width: frontRect.width
+	property variant settingsObject
+
+	width: Utils.getWidth()
 
 	front:Rectangle
 	{
 		id: frontRect
-		anchors.fill: parent
+		width:  Utils.getWidth()
+		height: parent.height
 
-		width: flipable.sideMargin + weatherImage.width + flipable.sideMargin +
-			   flipable.sideMargin + locationText.paintedWidth +
-			   flipable.sideMargin * 6 + weatherTempText.paintedWidth +
-			   flipable.sideMargin + configureImage.width +
-			   flipable.sideMargin + flipable.sideMargin
+		anchors.fill: parent
 
 		gradient: Gradient
 		{
@@ -73,14 +71,25 @@ Flipable
 			anchors.leftMargin: flipable.sideMargin
 			anchors.top: parent.top
 			anchors.topMargin: flipable.sideMargin
-			anchors.right: weatherTempText.left
-			anchors.rightMargin: flipable.sideMargin * 3
 
 			font.pixelSize: 22
 			font.bold: true
 			horizontalAlignment: Text.AlignLeft | Text.AlignVCenter
 
 			color: colorProxy.color_TextBox_TitleTextColor
+
+
+			MouseArea
+			{
+				anchors.fill: parent
+				hoverEnabled: true
+
+				ToolTip
+				{
+					anchors.fill: parent
+					text: qsTr ("Location")
+				}
+			}
 		}
 
 		Text
@@ -91,14 +100,24 @@ Flipable
 			anchors.topMargin: flipable.sideMargin
 			anchors.right: configureImage.left
 			anchors.rightMargin: flipable.sideMargin
-			anchors.left: locationText.right
-			anchors.leftMargin: flipable.sideMargin * 3
 
 			font.pixelSize: 22
 			font.bold: true
 			horizontalAlignment: Text.AlignRight | Text.AlignVCenter
 
 			color: colorProxy.color_TextBox_TextColor
+
+			MouseArea
+			{
+				anchors.fill: parent
+				hoverEnabled: true
+
+				ToolTip
+				{
+					anchors.fill: parent
+					text: qsTr ("Temperature")
+				}
+			}
 		}
 
 		ActionButton
@@ -156,6 +175,9 @@ Flipable
 
 		function searchLocation (location)
 		{
+			if (locationInput.text == "")
+				return;
+
 			variantsView.visible = false;
 			var request = new XMLHttpRequest ();
 			request.onreadystatechange = function ()
@@ -315,11 +337,10 @@ Flipable
 				}
 
 				width: variantsView.width - 1
-				height: variantsView.currentItem.height - 1
+				height: 20
 				border.color: colorProxy.color_ToolButton_HoveredBorderColor
 				radius: 2
 				opacity: 0.5
-				y: variantsView.currentItem.y
 				z: 10
 			}
 		}
@@ -366,7 +387,7 @@ Flipable
 			visible: locationSelected
 			onTriggered:
 			{
-				Meteor_Settings.setSettingsValue ("location", locationText.text)
+				settingsObject.setSettingsValue ("Location", locationInput.text)
 
 				flipped = !flipped
 				variantsModel.clear ()

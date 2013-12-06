@@ -12,8 +12,11 @@ Rectangle
 	property variant weatherData: weatherInfo
 	property string temperatureUnit: tempUnit
 
+	property variant settingsObject: settings
+
 	height: 300
-	width: headerRect.width
+	width: flipableRect.width + sideMargin * 2
+
 
 	smooth: true
 	radius: 5
@@ -38,16 +41,15 @@ Rectangle
 	{
 		id: headerRect
 
+		anchors.top: parent.top
 		anchors.left: parent.left
 		anchors.right: parent.right
-		anchors.top: parent.top
 		anchors.margins: sideMargin
 
 		property int sideMargins: 3
 
 		height: 70
 		width: flipableRect.width
-
 		smooth: true
 		radius: 5
 
@@ -68,14 +70,20 @@ Rectangle
 		FlipableRectangle
 		{
 			id: flipableRect
+			height: parent.height
 
-			anchors.fill: parent
+			settingsObject: rootRect.settingsObject
 
 			icon: rootRect.icon
 			scaleImage: rootRect.scaleImage
-			location: rootRect.weatherData ["name"] + ", " +
-					rootRect.weatherData ["sys"]["country"]
-			weatherTemperature: Utils.getTemperatureString (rootRect.weatherData, temperatureUnit)
+			location:
+				(typeof (rootRect.weatherData) != "undefined") ?
+					rootRect.weatherData ["name"] + ", " + rootRect.weatherData ["sys"]["country"] :
+					qsTr ("N/A");
+			weatherTemperature:
+				(typeof (rootRect.weatherData) != "undefined") ?
+					Utils.getTemperatureString (rootRect.weatherData, temperatureUnit) :
+					qsTr ("N/A");
 		}
 	}
 }

@@ -81,3 +81,12 @@ function getImage (iconId, useSystemIconSet)
 
 	return image;
 }
+
+function getWidth ()
+{
+	return flipable.sideMargin + weatherImage.width + flipable.sideMargin +
+			flipable.sideMargin + locationText.paintedWidth +
+			flipable.sideMargin * 3 + weatherTempText.paintedWidth +
+			flipable.sideMargin + configureImage.width +
+			flipable.sideMargin + flipable.sideMargin;
+}
