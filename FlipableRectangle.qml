@@ -221,7 +221,11 @@ Flipable
 			actionIconURL: "image://ThemeIcons/edit-find"
 			textTooltip: qsTr ("Search location")
 
-			onTriggered: backRect.searchLocation(locationInput.text)
+			onTriggered:
+			{
+				locationSelected = false;
+				backRect.searchLocation(locationInput.text)
+			}
 		}
 
 		ListModel
@@ -327,11 +331,12 @@ Flipable
 			anchors.left: locationInputContainer.left
 			anchors.right: locationInputContainer.right
 			anchors.top: locationInputContainer.bottom
-			height: (variantsModel.count + 2) * 20
-			clip:true
+			height: (variantsModel.count > 5) ? 100 : (variantsModel.count + 1) * 20
+			clip: true
 			focus: true
-			boundsBehavior: Flickable.StopAtBounds;
 			visible: false
+
+			z: 5
 
 			model: variantsModel
 			delegate: variantDelegate
@@ -361,7 +366,8 @@ Flipable
 			visible: locationSelected
 			onTriggered:
 			{
-				//TODO save location
+				Meteor_Settings.setSettingsValue ("location", locationText.text)
+
 				flipped = !flipped
 				variantsModel.clear ()
 				variantsView.visible = false
@@ -390,6 +396,15 @@ Flipable
 				variantsView.visible = false
 				locationInput.text = ""
 			}
+		}
+
+		MouseArea
+		{
+			anchors.fill: parent;
+			z: -1
+			onClicked:
+				if (variantsView.visible)
+					variantsView.visible = false;
 		}
 	}
 
