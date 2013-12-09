@@ -167,11 +167,9 @@ Item
 	onLocationChanged: requestNewWeather ()
 
 	onWeatherDataChanged:
-	{
 		if (showForecastWindow)
-		{
-			forecastWindow.icon = weatherButton.actionIconURL
 			forecastWindow.weatherData = rootRect.weatherData
-		}
-	}
+	onIconIDChanged:
+		if (showForecastWindow)
+			forecastWindow.icon = Utils.getImage (rootRect.iconID, useSystemIconSet)
 }
