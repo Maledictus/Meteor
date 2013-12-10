@@ -1,6 +1,6 @@
-function getTemperatureString (info, temperatureUnit)
+function getTemperatureString (temperature, temperatureUnit)
 {
-	var temp = parseFloat (info ["main"] ["temp"]);
+	var temp = parseFloat (temperature);
 	if (temperatureUnit === "Celsius")
 	{
 		temp = Math.round (temp - 273.15);

@@ -8,6 +8,10 @@
 				<label value="Update interval:" />
 				<suffix value=" min" />
 			</item>
+			<item type="spinbox" property="ForecastDaysCount" default="3" minimum="1" maximum="16">
+				<label value="Forecast days count:" />
+				<suffix value=" day" />
+			</item>
 		</groupbox>
 		<groupbox>
 			<label value="Appearance" />

@@ -17,7 +17,6 @@ Rectangle
 	height: 300
 	width: flipableRect.width + sideMargin * 2
 
-
 	smooth: true
 	radius: 5
 
@@ -76,14 +75,36 @@ Rectangle
 
 			icon: rootRect.icon
 			scaleImage: rootRect.scaleImage
+
 			location:
 				(typeof (rootRect.weatherData) != "undefined") ?
 					rootRect.weatherData ["name"] + ", " + rootRect.weatherData ["sys"]["country"] :
 					qsTr ("N/A");
 			weatherTemperature:
 				(typeof (rootRect.weatherData) != "undefined") ?
-					Utils.getTemperatureString (rootRect.weatherData, temperatureUnit) :
+					Utils.getTemperatureString (rootRect.weatherData ["main"]["temp"],
+						temperatureUnit) :
+					qsTr ("N/A");
+			description:
+				(typeof (rootRect.weatherData) != "undefined") ?
+					rootRect.weatherData ["weather"][0]["description"]:
+					qsTr ("N/A");
+			temeperatureLimits:
+				(typeof (rootRect.weatherData) != "undefined") ?
+					"H: " + Utils.getTemperatureString (rootRect.weatherData ["main"]["temp_min"], temperatureUnit) +
+							" L: " + Utils.getTemperatureString (rootRect.weatherData ["main"]["temp_max"], temperatureUnit):
 					qsTr ("N/A");
 		}
+
+		Connections
+		{
+			target: flipableRect
+			onShowDetailedInfo:
+			{
+				console.log ("show:", show)
+			}
+		}
 	}
+
+
 }

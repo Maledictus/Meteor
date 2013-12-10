@@ -85,7 +85,8 @@ Item
 			weatherLocation: rootRect.weatherData ["name"] + ", " +
 					rootRect.weatherData ["sys"]["country"],
 			weatherInfo: rootRect.weatherData ["weather"][0]["description"] +
-					", " + Utils.getTemperatureString (weatherData, TemperatureUnit),
+					", " + Utils.getTemperatureString (weatherData ["main"]["temp"],
+							TemperatureUnit),
 			weatherScaleImage: useSystemIconSet
 		};
 
@@ -145,7 +146,7 @@ Item
 				weatherScaleImage: useSystemIconSet,
 				weatherInfo: rootRect.weatherData,
 				tempUnit: TemperatureUnit,
-				settings: Meteor_Settings
+				settings: Meteor_Settings,
 			};
 			showForecastWindow = !showForecastWindow;
 			rootRect.forecastWindow = quarkProxy.openWindow(sourceURL,

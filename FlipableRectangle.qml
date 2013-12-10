@@ -9,18 +9,21 @@ Flipable
 
 	property int sideMargin: 5
 
-	property bool flipped: false;
-	property url icon;
+	property bool flipped: false
+	property url icon
 	property bool scaleImage: true
+	property bool locationSelected: false
+	property variant settingsObject
+	property bool moreInfoShown: false
 
 	property alias location: locationText.text
 	property alias weatherTemperature: weatherTempText.text
-
-	property bool locationSelected: false;
-
-	property variant settingsObject
+	property alias description: descriptionText.text
+	property alias temeperatureLimits: temperatureLimitsText.text
 
 	width: Utils.getWidth()
+
+	signal showDetailedInfo (bool show)
 
 	front:Rectangle
 	{
@@ -136,6 +139,59 @@ Flipable
 			textTooltip: qsTr ("Configure location")
 
 			onTriggered: flipped = !flipped
+		}
+
+		ActionButton
+		{
+			id: moreInfo
+
+			anchors.top: configureImage.bottom
+			anchors.topMargin: 3
+			anchors.right: parent.right
+			anchors.rightMargin: flipable.sideMargin
+
+			width: 24
+			height: width
+
+			actionIconURL: moreInfoShown ?
+					"image://ThemeIcons/arrow-up-double" :
+					"image://ThemeIcons/arrow-down-double"
+			textTooltip: moreInfoShown ?
+					qsTr ("Show weather forecast") :
+					qsTr ("Show more info...")
+
+			onTriggered:
+			{
+				moreInfoShown = !moreInfoShown
+				flipable.showDetailedInfo (moreInfoShown)
+			}
+		}
+
+		Text
+		{
+			id: descriptionText
+
+			anchors.left: weatherImage.right
+			anchors.leftMargin: flipable.sideMargin
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: flipable.sideMargin
+			horizontalAlignment: Text.AlignLeft | Text.AlignVCenter
+			elide: Text.ElideRight
+
+			color: colorProxy.color_TextBox_TextColor
+		}
+
+		Text
+		{
+			id: temperatureLimitsText
+
+			anchors.right: moreInfo.right
+			anchors.rightMargin: flipable.sideMargin
+			anchors.bottom: parent.bottom
+			anchors.bottomMargin: flipable.sideMargin
+			horizontalAlignment: Text.AlignRight | Text.AlignVCenter
+
+			color: colorProxy.color_TextBox_TextColor
 		}
 	}
 
