@@ -6,15 +6,11 @@ Rectangle
 	id: rootRect
 
 	property int sideMargin: 5
+
 	property url icon: weatherIcon
 	property bool scaleImage: weatherScaleImage
-
 	property variant weatherData: weatherInfo
-	property string temperatureUnit: tempUnit
-	property string pressureUnit: pressUnit
-	property string windSpeedUnit: windUnit
-
-	property variant settingsObject: settings
+	property variant weatherForecastData: forecastInfo
 
 	height: 300
 	width: flipableRect.width + sideMargin * 2
@@ -37,6 +33,12 @@ Rectangle
 	}
 
 	signal closeRequested()
+	signal forecastWindowClosed()
+
+	function beforeDelete ()
+	{
+		rootRect.forecastWindowClosed ();
+	}
 
 	Rectangle
 	{
@@ -73,8 +75,6 @@ Rectangle
 			id: flipableRect
 			height: parent.height
 
-			settingsObject: rootRect.settingsObject
-
 			icon: rootRect.icon
 			scaleImage: rootRect.scaleImage
 
@@ -84,7 +84,7 @@ Rectangle
 					qsTr ("N/A");
 			weatherTemperature:
 				(typeof (weatherData) != "undefined") ?
-					Utils.getTemperatureString (weatherData ["main"]["temp"], temperatureUnit) :
+					Utils.getTemperatureString (weatherData ["main"]["temp"], TemperatureUnit) :
 					qsTr ("N/A");
 			description:
 				(typeof (weatherData) != "undefined") ?
@@ -92,8 +92,8 @@ Rectangle
 					qsTr ("N/A");
 			temeperatureLimits:
 				(typeof (weatherData) != "undefined") ?
-					"H: " + Utils.getTemperatureString (weatherData ["main"]["temp_min"], temperatureUnit) +
-							" L: " + Utils.getTemperatureString (weatherData ["main"]["temp_max"], temperatureUnit):
+					"H: " + Utils.getTemperatureString (weatherData ["main"]["temp_min"], TemperatureUnit) +
+							" / L: " + Utils.getTemperatureString (weatherData ["main"]["temp_max"], TemperatureUnit):
 					qsTr ("N/A");
 		}
 	}
@@ -102,12 +102,14 @@ Rectangle
 	{
 		id: detailedInfoRect
 		width: parent.width
-		height: rootRect.height - headerRect.height - rootRect.sideMargin * 3
+		height: rootRect.height - headerRect.height - rootRect.sideMargin * 2
 
 		y: rootRect.y
+		z: 5
 
 		anchors.left: parent.left
 		anchors.right: parent.right
+		anchors.margins: rootRect.sideMargin
 
 		movementToValue: headerRect.y + headerRect.height
 		movementDuration: 500
@@ -141,4 +143,18 @@ Rectangle
 
 		}
 	}
+
+	ForecastRectangle
+	{
+		id: forecastRect
+		anchors.top: headerRect.bottom
+		anchors.left: parent.left
+		anchors.right: parent.right
+		anchors.bottom: parent.bottom
+		anchors.margins: rootRect.sideMargin
+
+		forecastInfo: rootRect.weatherForecastData
+	}
+
+	onWeatherForecastDataChanged: forecastRect.forecastInfo = rootRect.weatherForecastData
 }

@@ -18,9 +18,11 @@ Item
 
 	property bool useSystemIconSet: UseSystemIconSet
 	property string location: typeof (Location) == "undefined" ? "undefined" : Location
+	property int forecastDaysCount: ForecastDaysCount
 
 	property string iconID;
 	property variant weatherData;
+	property variant weatherForecastData;
 
 	function requestNewWeather ()
 	{
@@ -45,13 +47,39 @@ Item
 		request.send ();
 	}
 
+	function requestWeatherForecast ()
+	{
+		if (typeof (rootRect.location) == "undefined" || rootRect.location == "" ||
+				rootRect.location == "undefined")
+			return;
+
+		var request = new XMLHttpRequest ();
+		request.onreadystatechange = function ()
+		{
+			if (request.readyState == XMLHttpRequest.DONE)
+				if (request.status == 200)
+					rootRect.weatherForecastData = JSON.parse (request.responseText);
+				else
+					console.log ("HTTP request failed", request.status);
+		}
+
+		request.open ("GET", "http://api.openweathermap.org/data/2.5/forecast/daily?q=" +
+				rootRect.location + "&cnt=" + ForecastDaysCount);
+		request.send ();
+	}
+
 	Timer
 	{
+		id: updateTimer
 		interval: UpdateTemperatureInterval * 60 * 1000
 		repeat: true
 		running: true
 		triggeredOnStart: true
-		onTriggered: requestNewWeather ()
+		onTriggered:
+		{
+			requestNewWeather ();
+			requestWeatherForecast ();
+		}
 	}
 
 	Timer
@@ -145,10 +173,13 @@ Item
 				weatherIcon: weatherButton.actionIconURL,
 				weatherScaleImage: useSystemIconSet,
 				weatherInfo: rootRect.weatherData,
-				tempUnit: TemperatureUnit,
-				pressUnit: PressureUnit,
-				windUnit: WindSpeedUnit,
-				settings: Meteor_Settings,
+				forecastInfo: rootRect.weatherForecastData,
+				TemperatureUnit: TemperatureUnit,
+				PressureUnit: PressureUnit,
+				WindSpeedUnit: WindSpeedUnit,
+				UseSystemIconSet: UseSystemIconSet,
+				ForecastDaysCount: ForecastDaysCount,
+				Meteor_Settings: Meteor_Settings
 			};
 			showForecastWindow = !showForecastWindow;
 			rootRect.forecastWindow = quarkProxy.openWindow(sourceURL,
@@ -158,8 +189,6 @@ Item
 		onActionIconURLChanged: actionIconScales = useSystemIconSet;
 	}
 
-	onUseSystemIconSetChanged: requestNewWeather ();
-
 	onShowForecastWindowChanged:
 	{
 		if (showToolTip)
@@ -167,12 +196,32 @@ Item
 		toolTipShowTimer.stop ()
 	}
 
-	onLocationChanged: requestNewWeather ()
+	onLocationChanged:
+	{
+		requestNewWeather ();
+		requestWeatherForecast ();
+	}
+
+	onForecastDaysCountChanged: requestWeatherForecast ();
 
 	onWeatherDataChanged:
 		if (showForecastWindow)
 			forecastWindow.weatherData = rootRect.weatherData
+	onWeatherForecastDataChanged:
+		if (showForecastWindow)
+			forecastWindow.weatherForecastData = rootRect.weatherForecastData
 	onIconIDChanged:
 		if (showForecastWindow)
 			forecastWindow.icon = Utils.getImage (rootRect.iconID, useSystemIconSet)
+
+	Connections
+	{
+		id: closeRequestConnnection;
+		ignoreUnknownSignals: true
+		onForecastWindowClosed: showForecastWindow = !showForecastWindow
+	}
+	onForecastWindowChanged:
+		if (showForecastWindow && rootRect.forecastWindow)
+			closeRequestConnnection.target = rootRect.forecastWindow
+
 }

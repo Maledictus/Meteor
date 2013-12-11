@@ -63,7 +63,7 @@
 					<label value="nautical mile per hour (knot)" />
 				</option>
 				<option name="BeaufortScale" >
-					<label value="Beaufort scale" />
+					<label value="Beaufort scale (bft)" />
 				</option>
 			</item>
 		</groupbox>
