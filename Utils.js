@@ -17,6 +17,26 @@ function getTemperatureString (temperature, temperatureUnit)
 	return temp;
 }
 
+function getPressureString (pressure, pressureUnit)
+{
+	var temp = parseFloat (pressure);
+	if (pressureUnit === "Celsius")
+	{
+		temp = Math.round (temp - 273.15);
+		temp = String (temp) + "\u00B0"+ "C";
+	}
+	else if (pressureUnit === "Fahrenheit")
+	{
+		temp -= 458.87;
+		temp = String (temp) + "\u00B0"+ "F";
+	}
+	else if (pressureUnit === "Kelvin")
+		temp = String (temp) + "K";
+
+	return temp;
+}
+
+
 function getImage (iconId, useSystemIconSet)
 {
 	var image;

@@ -146,6 +146,8 @@ Item
 				weatherScaleImage: useSystemIconSet,
 				weatherInfo: rootRect.weatherData,
 				tempUnit: TemperatureUnit,
+				pressUnit: PressureUnit,
+				windUnit: WindSpeedUnit,
 				settings: Meteor_Settings,
 			};
 			showForecastWindow = !showForecastWindow;

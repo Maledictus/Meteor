@@ -48,6 +48,15 @@ Flipable
 		}
 
 
+		property bool isHovered: frontRectMouseArea.containsMouse ||
+				weatherImageMouseArea.containsMouse ||
+				locationTextMouseArea.containsMouse ||
+				weatherTempMouseArea.containsMouse ||
+				configureImage.isHovered ||
+				moreInfo.isHovered ||
+				descriptionTextMouseArea.containsMouse ||
+				temperatureLimitsTextMouseArea.containsMouse
+
 		Image
 		{
 			id: weatherImage
@@ -64,6 +73,13 @@ Flipable
 
 			smooth: true
 			source: scaleImage ? (icon + '/' + width) : icon
+
+			MouseArea
+			{
+				id: weatherImageMouseArea
+				anchors.fill: parent
+				hoverEnabled: true
+			}
 		}
 
 		Text
@@ -84,6 +100,7 @@ Flipable
 
 			MouseArea
 			{
+				id: locationTextMouseArea
 				anchors.fill: parent
 				hoverEnabled: true
 
@@ -112,6 +129,7 @@ Flipable
 
 			MouseArea
 			{
+				id: weatherTempMouseArea
 				anchors.fill: parent
 				hoverEnabled: true
 
@@ -132,6 +150,8 @@ Flipable
 			anchors.right: parent.right
 			anchors.rightMargin: flipable.sideMargin
 
+			visible: frontRect.isHovered
+
 			width: 24
 			height: width
 
@@ -146,7 +166,7 @@ Flipable
 			id: moreInfo
 
 			anchors.top: configureImage.bottom
-			anchors.topMargin: 3
+			anchors.topMargin: flipable.sideMargin
 			anchors.right: parent.right
 			anchors.rightMargin: flipable.sideMargin
 
@@ -159,6 +179,8 @@ Flipable
 			textTooltip: moreInfoShown ?
 					qsTr ("Show weather forecast") :
 					qsTr ("Show more info...")
+
+			visible: frontRect.isHovered
 
 			onTriggered:
 			{
@@ -179,6 +201,19 @@ Flipable
 			elide: Text.ElideRight
 
 			color: colorProxy.color_TextBox_TextColor
+
+			MouseArea
+			{
+				id: descriptionTextMouseArea
+				anchors.fill: parent
+				hoverEnabled: true
+
+				ToolTip
+				{
+					anchors.fill: parent
+					text: qsTr ("Description")
+				}
+			}
 		}
 
 		Text
@@ -192,6 +227,27 @@ Flipable
 			horizontalAlignment: Text.AlignRight | Text.AlignVCenter
 
 			color: colorProxy.color_TextBox_TextColor
+
+			MouseArea
+			{
+				id: temperatureLimitsTextMouseArea
+				anchors.fill: parent
+				hoverEnabled: true
+
+				ToolTip
+				{
+					anchors.fill: parent
+					text: qsTr ("Highest and lowest temperature of the day")
+				}
+			}
+		}
+
+		MouseArea
+		{
+			id: frontRectMouseArea
+			anchors.fill: parent
+			hoverEnabled: true
+			z: -1
 		}
 	}
 

@@ -11,6 +11,8 @@ Rectangle
 
 	property variant weatherData: weatherInfo
 	property string temperatureUnit: tempUnit
+	property string pressureUnit: pressUnit
+	property string windSpeedUnit: windUnit
 
 	property variant settingsObject: settings
 
@@ -77,34 +79,66 @@ Rectangle
 			scaleImage: rootRect.scaleImage
 
 			location:
-				(typeof (rootRect.weatherData) != "undefined") ?
-					rootRect.weatherData ["name"] + ", " + rootRect.weatherData ["sys"]["country"] :
+				(typeof (weatherData) != "undefined") ?
+					weatherData ["name"] + ", " + weatherData ["sys"]["country"] :
 					qsTr ("N/A");
 			weatherTemperature:
-				(typeof (rootRect.weatherData) != "undefined") ?
-					Utils.getTemperatureString (rootRect.weatherData ["main"]["temp"],
-						temperatureUnit) :
+				(typeof (weatherData) != "undefined") ?
+					Utils.getTemperatureString (weatherData ["main"]["temp"], temperatureUnit) :
 					qsTr ("N/A");
 			description:
-				(typeof (rootRect.weatherData) != "undefined") ?
-					rootRect.weatherData ["weather"][0]["description"]:
+				(typeof (weatherData) != "undefined") ?
+					weatherData ["weather"][0]["description"]:
 					qsTr ("N/A");
 			temeperatureLimits:
-				(typeof (rootRect.weatherData) != "undefined") ?
-					"H: " + Utils.getTemperatureString (rootRect.weatherData ["main"]["temp_min"], temperatureUnit) +
-							" L: " + Utils.getTemperatureString (rootRect.weatherData ["main"]["temp_max"], temperatureUnit):
+				(typeof (weatherData) != "undefined") ?
+					"H: " + Utils.getTemperatureString (weatherData ["main"]["temp_min"], temperatureUnit) +
+							" L: " + Utils.getTemperatureString (weatherData ["main"]["temp_max"], temperatureUnit):
 					qsTr ("N/A");
-		}
-
-		Connections
-		{
-			target: flipableRect
-			onShowDetailedInfo:
-			{
-				console.log ("show:", show)
-			}
 		}
 	}
 
+	DetailedInfoRectangle
+	{
+		id: detailedInfoRect
+		width: parent.width
+		height: rootRect.height - headerRect.height - rootRect.sideMargin * 3
 
+		y: rootRect.y
+
+		anchors.left: parent.left
+		anchors.right: parent.right
+
+		movementToValue: headerRect.y + headerRect.height
+		movementDuration: 500
+
+		opacityToValue: 1.0
+		opacityFromValue: 0.0
+		opacityDuration: 500
+
+		weatherInfo: rootRect.weatherData
+	}
+
+	Connections
+	{
+		target: flipableRect
+		onShowDetailedInfo:
+		{
+			if (show)
+			{
+				detailedInfoRect.movementToValue = headerRect.y + headerRect.height;
+				detailedInfoRect.opacityFromValue = 0.0;
+				detailedInfoRect.opacityToValue = 1.0;
+				detailedInfoRect.show ()
+			}
+			else
+			{
+				detailedInfoRect.opacityFromValue = 1.0;
+				detailedInfoRect.opacityToValue = 0.0;
+				detailedInfoRect.movementToValue = rootRect.y;
+				detailedInfoRect.hide ()
+			}
+
+		}
+	}
 }
