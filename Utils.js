@@ -8,7 +8,7 @@ function getTemperatureString (temperature, temperatureUnit)
 	}
 	else if (temperatureUnit === "Fahrenheit")
 	{
-		temp -= 458.87;
+		temp = Math.round (temp - 458.87);
 		temp = String (temp) + "\u00B0"+ "F";
 	}
 	else if (temperatureUnit === "Kelvin")

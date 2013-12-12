@@ -91,7 +91,7 @@ Rectangle
 		wrapMode: Text.WordWrap
 
 		property bool isGustExists: (typeof (weatherInfo) != undefined) &&
-				!isNaN (weatherInfo ["wind"]["gust"])
+				!isNaN (weatherInfo ["wind"]["gust"]) && (weatherInfo ["wind"]["gust"] !== 0)
 
 		text:
 			((typeof (weatherInfo) == "undefined") || isNaN (weatherInfo ["wind"]["speed"])) ?

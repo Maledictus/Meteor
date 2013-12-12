@@ -53,18 +53,31 @@ Rectangle
 
 			height: forecastView.height
 			width: Math.round (rootRect.width / forecastDaysCount) < 70 ?
-					Math.round (rootRect.width / 4) :
+					Math.round (rootRect.width / 3) :
 					Math.round (rootRect.width / forecastDaysCount)
+
+			Text
+			{
+				id: dateText
+				anchors.top: parent.top
+				anchors.margins: 5
+				anchors.horizontalCenter: parent.horizontalCenter
+
+				color: colorProxy.color_TextBox_TitleTextColor
+				font.pointSize: 18
+				text: date
+			}
 
 			Image
 			{
 				id: weatherImage
 
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.top: parent.top
-				anchors.margins: 5
+				anchors.top: dateText.bottom
+				anchors.margins: 20
+				anchors.horizontalCenter: parent.horizontalCenter
 
+				height: 64
+				width: 64
 
 				fillMode: Image.PreserveAspectFit
 				smooth: true
@@ -81,7 +94,50 @@ Rectangle
 						text: description
 					}
 				}
+			}
 
+			Text
+			{
+				id: dailyTemperatureText
+				anchors.top: weatherImage.bottom
+				anchors.margins: 20
+				anchors.horizontalCenter: parent.horizontalCenter
+
+				color: colorProxy.color_TextBox_TitleTextColor
+				font.pointSize: 14
+				text: tempDay
+				MouseArea
+				{
+					anchors.fill: parent
+					hoverEnabled: true
+					ToolTip
+					{
+						anchors.fill: parent
+						text: qsTr ("Daily temperature")
+					}
+				}
+			}
+
+			Text
+			{
+				id: nightlyTemperatureText
+				anchors.top: dailyTemperatureText.bottom
+				anchors.margins: 20
+				anchors.horizontalCenter: parent.horizontalCenter
+
+				color: colorProxy.color_TextBox_TitleTextColor
+				font.pointSize: 14
+				text: tempNight
+				MouseArea
+				{
+					anchors.fill: parent
+					hoverEnabled: true
+					ToolTip
+					{
+						anchors.fill: parent
+						text: qsTr ("Nightly temperature")
+					}
+				}
 			}
 		}
 	}
@@ -112,11 +168,10 @@ Rectangle
 			forecastModel.append ({
 					"date" : date.getDate (),
 					"iconId" : variant ["weather"][0]["icon"],
-					"tempDay": variant ["temp"]["day"],
-					"tempNight": variant ["temp"]["night"],
+					"tempDay": Utils.getTemperatureString (variant ["temp"]["day"], TemperatureUnit),
+					"tempNight": Utils.getTemperatureString (variant ["temp"]["night"], TemperatureUnit),
 					"description": variant ["weather"][0]["description"]
 					});
 		}
-//		forecastView.forceActiveFocus ()
 	}
 }
