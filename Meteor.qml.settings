@@ -18,6 +18,9 @@
 			<item type="checkbox" property="UseSystemIconSet" default="false" >
 				<label value="Use system iconset:" />
 			</item>
+			<item type="checkbox" property="ShowTemperature" default="false" >
+				<label value="Show temperature on quark:" />
+			</item>
 		</groupbox>
 		<groupbox>
 			<label value="Units" />

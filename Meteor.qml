@@ -19,6 +19,7 @@ Item
 	property bool useSystemIconSet: UseSystemIconSet
 	property string location: typeof (Location) == "undefined" ? "undefined" : Location
 	property int forecastDaysCount: ForecastDaysCount
+	property bool showTemperature: ShowTemperature
 
 	property string iconID;
 	property variant weatherData;
@@ -189,6 +190,22 @@ Item
 		onActionIconURLChanged: actionIconScales = useSystemIconSet;
 	}
 
+	Text {
+		anchors.fill: parent
+ 		horizontalAlignment: Text.AlignHCenter
+ 		verticalAlignment: Text.AlignVCenter
+		
+		font.pixelSize: parent.height / 3
+				
+		text: showTemperature ? 
+			Utils.getTemperatureString (weatherData ["main"]["temp"], TemperatureUnit) : 
+			""
+			
+		color: colorProxy.color_Panel_TextColor
+		style: Text.Outline
+		styleColor: colorProxy.color_Panel_TopColor
+	}
+	
 	onShowForecastWindowChanged:
 	{
 		if (showToolTip)
