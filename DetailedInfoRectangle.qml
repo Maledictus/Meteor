@@ -14,6 +14,8 @@ Rectangle
 	property alias opacityToValue: animateOpacity.to
 	property alias opacityDuration: animateOpacity.duration
 
+	property string updateDate
+	
 	opacity: 0.0
 
 	function show ()
@@ -145,6 +147,21 @@ Rectangle
 				qsTr ("Sunset: ") + new Date (weatherInfo ["sys"]["sunset"] * 1000).toLocaleTimeString ();
 	}
 
+	Text
+	{
+		id: dateTimeText
+		anchors.left: parent.left
+		anchors.leftMargin: 5
+		anchors.right: parent.right
+		anchors.rightMargin: 5
+		anchors.bottom: parent.bottom
+		anchors.topMargin: 10
+		horizontalAlignment: Text.AlignHCenter | Text.AlignVCenter
+
+		color: colorProxy.color_TextBox_TextColor
+		
+		text: qsTr ("Last update: %1").arg (updateDate)
+	}
 
 	PropertyAnimation
 	{

@@ -9,6 +9,7 @@ Rectangle
 
 	property url icon: weatherIcon
 	property bool scaleImage: weatherScaleImage
+	property string updateDate: weatherUpdateDate
 	property variant weatherData: weatherInfo
 	property variant weatherForecastData: forecastInfo
 
@@ -92,8 +93,8 @@ Rectangle
 					qsTr ("N/A");
 			temeperatureLimits:
 				(typeof (weatherData) != "undefined") ?
-					"H: " + Utils.getTemperatureString (weatherData ["main"]["temp_min"], TemperatureUnit) +
-							" / L: " + Utils.getTemperatureString (weatherData ["main"]["temp_max"], TemperatureUnit):
+					"L: " + Utils.getTemperatureString (weatherData ["main"]["temp_min"], TemperatureUnit) +
+							" / H: " + Utils.getTemperatureString (weatherData ["main"]["temp_max"], TemperatureUnit):
 					qsTr ("N/A");
 		}
 	}
@@ -119,6 +120,8 @@ Rectangle
 		opacityDuration: 500
 
 		weatherInfo: rootRect.weatherData
+		
+		updateDate: rootRect.updateDate
 	}
 
 	Connections

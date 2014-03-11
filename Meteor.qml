@@ -22,8 +22,9 @@ Item
 	property bool showTemperature: ShowTemperature
 
 	property string iconID;
-	property variant weatherData;
-	property variant weatherForecastData;
+	property variant weatherData: undefined;
+	property variant weatherForecastData: undefined;
+	property date requestDate: new Date();
 
 	function requestNewWeather ()
 	{
@@ -39,6 +40,7 @@ Item
 				{
 					rootRect.weatherData = JSON.parse (request.responseText);
 					rootRect.iconID = rootRect.weatherData ["weather"][0]["icon"];
+					rootRect.requestDate = new Date()
 				}
 				else
 					console.log ("HTTP request failed", request.status);
@@ -175,6 +177,7 @@ Item
 				weatherScaleImage: useSystemIconSet,
 				weatherInfo: rootRect.weatherData,
 				forecastInfo: rootRect.weatherForecastData,
+				weatherUpdateDate: Qt.formatDateTime(rootRect.requestDate, Qt.DefaultLocaleShortDate),
 				TemperatureUnit: TemperatureUnit,
 				PressureUnit: PressureUnit,
 				WindSpeedUnit: WindSpeedUnit,
@@ -197,7 +200,7 @@ Item
 		
 		font.pixelSize: parent.height / 3
 				
-		text: showTemperature ? 
+		text:  weatherData !== undefined && showTemperature ? 
 			Utils.getTemperatureString (weatherData ["main"]["temp"], TemperatureUnit) : 
 			""
 			
