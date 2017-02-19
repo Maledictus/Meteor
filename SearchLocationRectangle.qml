@@ -57,7 +57,7 @@ Rectangle
                 else
                     console.log ("HTTP request failed", request.status);
         }
-        request.open ("GET", "http://api.openweathermap.org/data/2.5/find?type=like&"
+        request.open ("GET", "http://api.openweathermap.org/data/2.5/find?type=like&" +
                 "appid=db7ea41ea6c217e4d868609e4fe0788e&q=" + location);
         request.send ();
     }

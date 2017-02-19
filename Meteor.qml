@@ -46,7 +46,7 @@ Item
                     console.log ("HTTP request failed", request.status);
         }
 
-        request.open ("GET", "http://api.openweathermap.org/data/2.5/weather?"
+        request.open ("GET", "http://api.openweathermap.org/data/2.5/weather?" +
                 "appid=db7ea41ea6c217e4d868609e4fe0788e&q=" + rootRect.location);
         request.send ();
     }
@@ -67,7 +67,7 @@ Item
                     console.log ("HTTP request failed", request.status);
         }
 
-        request.open ("GET", "http://api.openweathermap.org/data/2.5/forecast/daily?"
+        request.open ("GET", "http://api.openweathermap.org/data/2.5/forecast/daily?" +
                 "appid=db7ea41ea6c217e4d868609e4fe0788e&q=" + rootRect.location +
                 "&cnt=" + ForecastDaysCount);
         request.send ();
